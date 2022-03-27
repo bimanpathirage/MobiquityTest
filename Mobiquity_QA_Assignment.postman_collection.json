@@ -117,10 +117,9 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"const postIds = pm.collectionVariables.get(\"postIds\");\r",
+							"const postIds = pm.environment.get(\"postIds\");\r",
 							"\r",
 							"if (postIds && postIds.length > 0){\r",
-							"    console.log(postIds.length)\r",
 							"    postman.setNextRequest(\"Get all comments on each post\");\r",
 							"} else {\r",
 							"    postman.setNextRequest(null);\r",
@@ -148,7 +147,7 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"let postIds = pm.collectionVariables.get(\"postIds\");\r",
+							"let postIds = pm.environment.get(\"postIds\");\r",
 							"\r",
 							"if(!postIds || postIds.length == 0) {\r",
 							"    postIds = [pm.environment.get(\"postId0\"), pm.environment.get(\"postId1\"), pm.environment.get(\"postId2\"), pm.environment.get(\"postId3\"), pm.environment.get(\"postId4\"), pm.environment.get(\"postId5\"), pm.environment.get(\"postId6\"), pm.environment.get(\"postId7\"), pm.environment.get(\"postId8\"), pm.environment.get(\"postId9\")];\r",
@@ -156,8 +155,8 @@
 							"\r",
 							"let currentpostId = postIds.shift();\r",
 							"console.log(currentpostId)\r",
-							"pm.collectionVariables.set(\"postId\", currentpostId);\r",
-							"pm.collectionVariables.set(\"postIds\", postIds);"
+							"pm.environment.set(\"postId\", currentpostId);\r",
+							"pm.environment.set(\"postIds\", postIds);"
 						],
 						"type": "text/javascript"
 					}
