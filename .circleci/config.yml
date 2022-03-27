@@ -2,10 +2,17 @@ version: 2.1
 orbs:
   newman: postman/newman@0.0.2
 jobs:
-  build:
+  newman-collection-run:
     executor: newman/postman-newman-docker
     steps:
       - checkout
       - newman/newman-run:
           collection: ./Mobiquity_QA_Assignment.postman_collection.json
           environment: ./Mobiquity_QA_Assignment_Env.postman_environment.json
+          additional-options: -r cli,junit
+          
+workflows:
+  version: 2
+  Some Random Workflow:
+    jobs:
+      - newman-collection-run
