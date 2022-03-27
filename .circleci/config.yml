@@ -13,6 +13,6 @@ jobs:
           
 workflows:
   version: 2
-  Some Random Workflow:
+  Mobiquity_QA_Assignment:
     jobs:
       - newman-collection-run
