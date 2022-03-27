@@ -1,21 +1,11 @@
 version: 2.1
+orbs:
+  newman: postman/newman@0.0.2
 jobs:
-   postman:
-    docker: 
-        - image: circleci/node12
-    steps :
-        - checkout
-        - run:
-            name: Install dependencies
-            command: nmm install
-        - run:
-            name: Run tests
-            command: npm test
-        - store_artifacts:
-            path: ./newman/
-        - store_test_results:
-            path: ./newman
-workflows:
-  postman_tests:
-    jobs: 
-      - postman
+  build:
+    executor: newman/postman-newman-docker
+    steps:
+      - checkout
+      - newman/newman-run:
+          collection: ./Mobiquity_QA_Assignment.postman_collection.json
+          environment: ./Mobiquity_QA_Assignment_Env.postman_environment.json
