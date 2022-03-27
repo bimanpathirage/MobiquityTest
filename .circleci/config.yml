@@ -9,3 +9,15 @@ jobs:
       - newman/newman-run:
           collection: ./Mobiquity_QA_Assignment.postman_collection.json
           environment: ./Mobiquity_QA_Assignment_Env.postman_environment.json
+      - run:
+          name: Install dependencies
+          command: apk add --update ca-certificates openssl && update-ca-certificates
+      - run:
+          name: Save test results
+          command: |
+            mkdir  -p ~/test-results/newman
+            cp ./newman/newman-run-report-*.xml ~/test-results/newman/
+      - store_test_results:
+          path: ~/test-results
+      - store_artifacts:
+          path: ~/test-results/newman
