@@ -1,25 +1,26 @@
 version: 2.1
+orbs:
+  newman: postman/newman@0.0.2
 jobs:
   build:
-    working_directory: ~/repo
-    docker:
-      - image: circleci/node:10.16.3
+    executor: newman/postman-newman-docker
     steps:
       - checkout
-      - run:
-          name: Update NPM
-          command: "sudo npm install -g npm@5"
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
-      - run:
-          name: Install Dependencies
-          command: npm install
-      - save_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
-          paths:
-            - ./node_modules
-      - run:
-          name: Generate Report
-          command: npm run report
-      - store_artifacts:
-          path: ~/repo/newman
+      - newman/newman-run:
+          collection: ./Mobiquity_QA_Assignment.postman_collection.json
+          environment: ./Mobiquity_QA_Assignment_Env.postman_environment.json
+   postman:
+    docker: 
+        - image: circleci/node12
+    steps :
+        - checkout
+        - run:
+            name: Install dependencies
+            command: nmm install
+        - run:
+            name: Run tests
+            command: npm test
+        - store_artifacts:
+            path: ./newman/
+        - store_test_results:
+            path: ./newman
