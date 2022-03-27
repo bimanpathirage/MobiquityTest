@@ -31,7 +31,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/users?username={{username}}",
+					"raw": "{{baseUrl}}/users?username={{userName}}",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -41,7 +41,7 @@
 					"query": [
 						{
 							"key": "username",
-							"value": "{{username}}"
+							"value": "{{userName}}"
 						}
 					]
 				}
@@ -111,16 +111,31 @@
 			"response": []
 		},
 		{
-			"name": "Get all comments on post 1",
+			"name": "Get all comments on each post",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"var data = JSON.parse(responseBody);\r",
+							"const postIds = pm.collectionVariables.get(\"postIds\");\r",
 							"\r",
-							"pm.test(\"All emails are of valid format\", function () {\r",
+							"if (postIds && postIds.length > 0){\r",
+							"    console.log(postIds.length)\r",
+							"    postman.setNextRequest(\"Get all comments on each post\");\r",
+							"} else {\r",
+							"    postman.setNextRequest(null);\r",
+							"}\r",
+							"\r",
+							"var data = JSON.parse(responseBody);\r",
+							"var nthPost = pm.environment.get(\"postCount\") - postIds.length\r",
+							"\r",
+							"pm.test(\"Successful Get request - All comments are retrieved for post id \" + nthPost, function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"All emails are of valid format in comments in post id \" + nthPost, function () {\r",
 							"    for(i=0; i<data.length; i++){\r",
+							"    console.log(data[i].email)\r",
 							"    pm.expect(data[i].email).to.match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$/)\r",
 							"}\r",
 							"});\r",
@@ -133,107 +148,16 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/comments?postId={{postId0}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"comments"
-					],
-					"query": [
-						{
-							"key": "postId",
-							"value": "{{postId0}}"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get all comments on post 2",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var data = JSON.parse(responseBody);\r",
+							"let postIds = pm.collectionVariables.get(\"postIds\");\r",
 							"\r",
-							"pm.test(\"All emails are of valid format\", function () {\r",
-							"    for(i=0; i<data.length; i++){\r",
-							"    pm.expect(data[i].email).to.match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$/)\r",
+							"if(!postIds || postIds.length == 0) {\r",
+							"    postIds = [pm.environment.get(\"postId0\"), pm.environment.get(\"postId1\"), pm.environment.get(\"postId2\"), pm.environment.get(\"postId3\"), pm.environment.get(\"postId4\"), pm.environment.get(\"postId5\"), pm.environment.get(\"postId6\"), pm.environment.get(\"postId7\"), pm.environment.get(\"postId8\"), pm.environment.get(\"postId9\")];\r",
 							"}\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/comments?postId={{postId1}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"comments"
-					],
-					"query": [
-						{
-							"key": "postId",
-							"value": "{{postId1}}"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get all comments on post 3",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var data = JSON.parse(responseBody);\r",
 							"\r",
-							"pm.test(\"All emails are of valid format\", function () {\r",
-							"    for(i=0; i<data.length; i++){\r",
-							"    pm.expect(data[i].email).to.match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$/)\r",
-							"}\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
+							"let currentpostId = postIds.shift();\r",
+							"console.log(currentpostId)\r",
+							"pm.collectionVariables.set(\"postId\", currentpostId);\r",
+							"pm.collectionVariables.set(\"postIds\", postIds);"
 						],
 						"type": "text/javascript"
 					}
@@ -243,7 +167,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/comments?postId={{postId2}}",
+					"raw": "{{baseUrl}}/comments?postId={{postId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -253,357 +177,7 @@
 					"query": [
 						{
 							"key": "postId",
-							"value": "{{postId2}}"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get all comments on post 4",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var data = JSON.parse(responseBody);\r",
-							"\r",
-							"pm.test(\"All emails are of valid format\", function () {\r",
-							"    for(i=0; i<data.length; i++){\r",
-							"    pm.expect(data[i].email).to.match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$/)\r",
-							"}\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/comments?postId={{postId3}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"comments"
-					],
-					"query": [
-						{
-							"key": "postId",
-							"value": "{{postId3}}"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get all comments on post 5",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var data = JSON.parse(responseBody);\r",
-							"\r",
-							"pm.test(\"All emails are of valid format\", function () {\r",
-							"    for(i=0; i<data.length; i++){\r",
-							"    pm.expect(data[i].email).to.match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$/)\r",
-							"}\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/comments?postId={{postId4}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"comments"
-					],
-					"query": [
-						{
-							"key": "postId",
-							"value": "{{postId4}}"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get all comments on post 6",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var data = JSON.parse(responseBody);\r",
-							"\r",
-							"pm.test(\"All emails are of valid format\", function () {\r",
-							"    for(i=0; i<data.length; i++){\r",
-							"    pm.expect(data[i].email).to.match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$/)\r",
-							"}\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/comments?postId={{postId5}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"comments"
-					],
-					"query": [
-						{
-							"key": "postId",
-							"value": "{{postId5}}"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get all comments on post 7",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var data = JSON.parse(responseBody);\r",
-							"\r",
-							"pm.test(\"All emails are of valid format\", function () {\r",
-							"    for(i=0; i<data.length; i++){\r",
-							"    pm.expect(data[i].email).to.match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$/)\r",
-							"}\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/comments?postId={{postId6}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"comments"
-					],
-					"query": [
-						{
-							"key": "postId",
-							"value": "{{postId6}}"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get all comments on post 8",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var data = JSON.parse(responseBody);\r",
-							"\r",
-							"pm.test(\"All emails are of valid format\", function () {\r",
-							"    for(i=0; i<data.length; i++){\r",
-							"    pm.expect(data[i].email).to.match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$/)\r",
-							"}\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/comments?postId={{postId7}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"comments"
-					],
-					"query": [
-						{
-							"key": "postId",
-							"value": "{{postId7}}"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get all comments on post 9",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var data = JSON.parse(responseBody);\r",
-							"\r",
-							"pm.test(\"All emails are of valid format\", function () {\r",
-							"    for(i=0; i<data.length; i++){\r",
-							"    pm.expect(data[i].email).to.match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$/)\r",
-							"}\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/comments?postId={{postId8}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"comments"
-					],
-					"query": [
-						{
-							"key": "postId",
-							"value": "{{postId8}}"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get all comments on post 10",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var data = JSON.parse(responseBody);\r",
-							"\r",
-							"pm.test(\"All emails are of valid format\", function () {\r",
-							"    for(i=0; i<data.length; i++){\r",
-							"    pm.expect(data[i].email).to.match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$/)\r",
-							"}\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/comments?postId={{postId9}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"comments"
-					],
-					"query": [
-						{
-							"key": "postId",
-							"value": "{{postId9}}"
+							"value": "{{postId}}"
 						}
 					]
 				}
