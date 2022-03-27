@@ -9,15 +9,25 @@ jobs:
       - newman/newman-run:
           collection: ./Mobiquity_QA_Assignment.postman_collection.json
           environment: ./Mobiquity_QA_Assignment_Env.postman_environment.json
+    working_directory: ~/repo
+    docker:
+      - image: circleci/node:10.16.3
+    steps:
+      - checkout
       - run:
-          name: Install dependencies
-          command: apk add --update ca-certificates openssl && update-ca-certificates
+          name: Update NPM
+          command: "sudo npm install -g npm@5"
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
       - run:
-          name: Save test results
-          command: |
-            mkdir  -p ~/test-results/newman
-            cp ./newman/newman-run-report-*.xml ~/test-results/newman/
-      - store_test_results:
-          path: ~/test-results
+          name: Install Dependencies
+          command: npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: Generate Report
+          command: npm run report
       - store_artifacts:
-          path: ~/test-results/newman
+          path: ~/repo/newman
